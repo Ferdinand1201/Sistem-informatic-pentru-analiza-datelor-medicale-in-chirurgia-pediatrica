@@ -21,47 +21,49 @@ Acest proiect reprezintă o aplicație informatică destinată colectării, gest
 
 ## 🚀 Cum rulezi proiectul
 
-1. Clonează repo:
+## 1. Clonează repo:
 
 git clone https://github.com/USERNAME/proiect-chirurgie-pediatrica.git
 cd proiect-chirurgie-pediatrica
 
-Activează mediul virtual:
+## 2. Activează mediul virtual:
 
 python -m venv venv
 venv\Scripts\activate
-Instalează dependințele:
+
+## 3. Instalează dependințele:
 
 pip install -r requirements.txt
-Rulează serverul FastAPI:
+
+## 4. Rulează serverul FastAPI:
 
 uvicorn app.main:app --reload
-Accesează documentația API:
+
+## 5. Accesează documentația API:
 
 http://localhost:8000/docs
-Rulează dashboardul:
+
+## 6. Rulează dashboardul:
 
 streamlit run dashboard/ui_dashboard.py
 
-🔐 Autentificare
+# Autentificare
 medic / 1234 → acces complet
 
 asistent / 4321 → vizualizare
 
 Token JWT se generează la /token și se folosește pentru autorizare
 
-📤 Export + analiză în R
+# Export + analiză în R
 Apelează:
 
 GET /export/json
 În analiza.R:
 
-r
-Copiază
-Editează
 library(jsonlite)
 df <- stream_in(file("data/export_r.json"))
-📁 Structura proiectului
+
+#Structura proiectului
 
 
 proiect_chirurgie_pediatrica/
@@ -75,7 +77,4 @@ proiect_chirurgie_pediatrica/
 ├── r-analysis/
 │   └── analiza.R
 ├── README.md
-👨‍💻 Autori
-Nume 1 – @username
 
-Nume 2 – ...

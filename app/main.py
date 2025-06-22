@@ -1,10 +1,56 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Form, Depends, HTTPException
+from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel
+from passlib.context import CryptContext
 import pandas as pd
+import os
+from fastapi import FastAPI
+from fastapi.openapi.models import OAuthFlows as OAuthFlowsModel
+from fastapi.security import OAuth2PasswordBearer
+from fastapi.openapi.utils import get_openapi
+from app.auth import create_access_token, fake_users_db, role_required
+
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/token", scheme_name="JWT")
 
 app = FastAPI()
-df = pd.DataFrame()
 
+# Setare manuală de OpenAPI (opțional, dar util)
+def custom_openapi():
+    if app.openapi_schema:
+        return app.openapi_schema
+    openapi_schema = get_openapi(
+        title="Sistem Chirurgie Pediatrică",
+        version="1.0.0",
+        description="API pentru colectarea și protejarea datelor medicale",
+        routes=app.routes,
+    )
+    openapi_schema["components"]["securitySchemes"] = {
+        "BearerAuth": {
+            "type": "http",
+            "scheme": "bearer",
+            "bearerFormat": "JWT",
+        }
+    }
+    for path in openapi_schema["paths"].values():
+        for method in path.values():
+            method["security"] = [{"BearerAuth": []}]
+    app.openapi_schema = openapi_schema
+    return app.openapi_schema
+
+app.openapi = custom_openapi
+
+# Asigurăm că folderul data/ există
+os.makedirs("data", exist_ok=True)
+
+# Dacă există deja fișierul CSV, îl încărcăm în memorie
+csv_path = "data/vitals_sample.csv"
+if os.path.exists(csv_path):
+    df = pd.read_csv(csv_path)
+else:
+    df = pd.DataFrame()
+
+# Schema pentru datele vitale
 class VitalData(BaseModel):
     patient_id: str
     heart_rate: int
@@ -12,8 +58,36 @@ class VitalData(BaseModel):
     temperature: float
     timestamp: str
 
+# Endpoint pentru trimiterea datelor
 @app.post("/submit")
 def submit_vitals(data: VitalData):
     global df
-    df = pd.concat([df, pd.DataFrame([data.dict()])], ignore_index=True)
-    return {"message": "Date înregistrate"}
+    entry = data.dict()
+    df = pd.concat([df, pd.DataFrame([entry])], ignore_index=True)
+    df.to_csv(csv_path, index=False)
+    return {"message": "Date înregistrate și salvate în CSV"}
+
+# Inițializare context parole
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+# Endpoint pentru login
+@app.post("/token")
+def login(username: str = Form(...), password: str = Form(...)):
+    user = fake_users_db.get(username)
+    if not user or not pwd_context.verify(password, user["hashed_password"]):
+        raise HTTPException(status_code=400, detail="Invalid credentials")
+    token = create_access_token(data={"sub": username, "role": user["role"]})
+    return {"access_token": token, "token_type": "bearer"}
+
+# Endpoint protejat cu roluri
+@app.get("/vitals-secured")
+def view_last_vitals(user=Depends(role_required(["doctor", "nurse"]))):
+    return df.tail(5).to_dict()
+
+@app.get("/export/json")
+def export_json(user=Depends(role_required(["doctor", "nurse", "researcher"]))):
+    try:
+        df.to_json("data/export_r.json", orient="records", lines=True)
+        return {"message": "Export JSON pentru R salvat în data/export_r.json"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Eroare export: {str(e)}")

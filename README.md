@@ -63,8 +63,9 @@ GET /export/json
 library(jsonlite)
 df <- stream_in(file("data/export_r.json"))
 
-#Structura proiectului
+## 📁 Structura proiectului
 
+```plaintext
 
 proiect_chirurgie_pediatrica/
 ├── app/
@@ -73,8 +74,10 @@ proiect_chirurgie_pediatrica/
 ├── dashboard/
 │   └── ui_dashboard.py
 ├── data/
-│   └── vitals_sample.csv
+│   ├── vitals_sample.csv
+│   └── export_r.json
 ├── r-analysis/
 │   └── analiza.R
 ├── README.md
+
 

@@ -22,7 +22,7 @@ Acest proiect reprezintă o aplicație informatică destinată colectării, gest
 ## 🚀 Cum rulezi proiectul
 
 1. Clonează repo:
-```bash
+
 git clone https://github.com/USERNAME/proiect-chirurgie-pediatrica.git
 cd proiect-chirurgie-pediatrica
 
@@ -31,7 +31,6 @@ Activează mediul virtual:
 python -m venv venv
 venv\Scripts\activate
 Instalează dependințele:
-
 
 pip install -r requirements.txt
 Rulează serverul FastAPI:
@@ -54,9 +53,6 @@ Token JWT se generează la /token și se folosește pentru autorizare
 📤 Export + analiză în R
 Apelează:
 
-pgsql
-Copiază
-Editează
 GET /export/json
 În analiza.R:
 
@@ -66,9 +62,8 @@ Editează
 library(jsonlite)
 df <- stream_in(file("data/export_r.json"))
 📁 Structura proiectului
-css
-Copiază
-Editează
+
+
 proiect_chirurgie_pediatrica/
 ├── app/
 │   ├── main.py

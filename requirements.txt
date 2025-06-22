@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+pandas
+streamlit
+plotly
+web3
+python-jose[cryptography]
+passlib[bcrypt]

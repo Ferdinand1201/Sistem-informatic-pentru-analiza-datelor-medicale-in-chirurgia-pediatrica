@@ -54,9 +54,9 @@ http://localhost:8000/docs
 ```
 
 ## 6. Rulează dashboardul:
-
-streamlit run dashboard/ui_dashboard.py
-
+```plaintext
+python streamlit run dashboard/ui_dashboard.py
+```
 # Autentificare
 ```plaintext
 

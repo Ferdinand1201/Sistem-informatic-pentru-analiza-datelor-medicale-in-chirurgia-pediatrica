@@ -9,6 +9,11 @@ from fastapi.openapi.models import OAuthFlows as OAuthFlowsModel
 from fastapi.security import OAuth2PasswordBearer
 from fastapi.openapi.utils import get_openapi
 from app.auth import create_access_token, fake_users_db, role_required
+from app.ml_model import predict_risk
+from passlib.context import CryptContext
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/token", scheme_name="JWT")
@@ -50,6 +55,7 @@ if os.path.exists(csv_path):
 else:
     df = pd.DataFrame()
 
+
 # Schema pentru datele vitale
 class VitalData(BaseModel):
     patient_id: str
@@ -58,27 +64,59 @@ class VitalData(BaseModel):
     temperature: float
     timestamp: str
 
-# Endpoint pentru trimiterea datelor
+def compute_pews(hr: int, spo2: float, temp: float) -> int:
+    score = 0
+
+    # Heart Rate
+    if hr > 180:
+        score += 2
+    elif hr > 160:
+        score += 1
+
+    # SpO2
+    if spo2 < 90:
+        score += 2
+    elif spo2 < 94:
+        score += 1
+
+    # Temperatură
+    if temp > 38.5:
+        score += 1
+
+    return score
 @app.post("/submit")
 def submit_vitals(data: VitalData):
     global df
     entry = data.dict()
-    df = pd.concat([df, pd.DataFrame([entry])], ignore_index=True)
-    df.to_csv(csv_path, index=False)
-    return {"message": "Date înregistrate și salvate în CSV"}
 
-# Inițializare context parole
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+    # Adăugăm predicția de risc AI
+    risk_score = predict_risk(entry["heart_rate"], entry["spo2"], entry["temperature"])
+    entry["risk"] = risk_score
+
+    # Adăugăm scorul PEWS
+    pews_score = compute_pews(entry["heart_rate"], entry["spo2"], entry["temperature"])
+    entry["pews"] = pews_score
+
+    df = pd.concat([df, pd.DataFrame([entry])], ignore_index=True)
+
+    return {
+        "message": "Date înregistrate.",
+        "risk": "RIDICAT" if risk_score else "SCĂZUT",
+        "pews_score": pews_score
+    }
+
 
 # Endpoint pentru login
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
 @app.post("/token")
 def login(username: str = Form(...), password: str = Form(...)):
     user = fake_users_db.get(username)
     if not user or not pwd_context.verify(password, user["hashed_password"]):
         raise HTTPException(status_code=400, detail="Invalid credentials")
+
     token = create_access_token(data={"sub": username, "role": user["role"]})
     return {"access_token": token, "token_type": "bearer"}
-
 # Endpoint protejat cu roluri
 @app.get("/vitals-secured")
 def view_last_vitals(user=Depends(role_required(["doctor", "nurse"]))):

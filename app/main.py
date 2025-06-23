@@ -129,3 +129,12 @@ def export_json(user=Depends(role_required(["doctor", "nurse", "researcher"]))):
         return {"message": "Export JSON pentru R salvat în data/export_r.json"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Eroare export: {str(e)}")
+
+@app.get("/export/csv")
+def export_csv(user=Depends(role_required(["doctor", "nurse", "researcher"]))):
+    try:
+        df.to_csv("data/export_jasp.csv", index=False)
+        return {"message": "Export CSV pentru JASP salvat în data/export_jasp.csv"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Eroare export: {str(e)}")
+

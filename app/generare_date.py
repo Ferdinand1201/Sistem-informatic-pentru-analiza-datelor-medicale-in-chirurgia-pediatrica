@@ -2,11 +2,18 @@ import pandas as pd
 import random
 from datetime import datetime, timedelta
 import os
+import sys
 
-output_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "data", "vitals_sample.csv"))
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "app")))
+from ml_model import train_model
+
+
+output_path = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "..", "data", "vitals_sample.csv")
+)
 os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
-# Funcție pentru scor PEWS
 def compute_pews(hr, spo2, temp):
     score = 0
     if hr > 180:
@@ -26,12 +33,10 @@ def compute_pews(hr, spo2, temp):
 
     return score
 
-# Configurare
 n_pacienti = 10
-masuratori_per_pacient = 6  # o dată la 10 minute, timp de o oră
+masuratori_per_pacient = 6
 start_time = datetime(2025, 6, 23, 10, 0)
 
-# Generare date
 rows = []
 for i in range(n_pacienti):
     patient_id = f"P{str(i+1).zfill(3)}"
@@ -42,7 +47,6 @@ for i in range(n_pacienti):
         temp = round(random.uniform(36.0, 40.0), 1)
         pews = compute_pews(hr, spo2, temp)
 
-        # Convertim scor PEWS în etichetă simbolică
         if pews >= 4:
             risk_level = "Ridicat"
         elif pews >= 2:
@@ -57,16 +61,18 @@ for i in range(n_pacienti):
         ])
         timestamp += timedelta(minutes=10)
 
-# Salvare în CSV
 df = pd.DataFrame(rows, columns=[
     "patient_id", "heart_rate", "spo2", "temperature", "timestamp", "pews", "risk_level"
 ])
 df["timestamp"] = pd.to_datetime(df["timestamp"])
 
-# Sortează corect: după timp, apoi pacient
 df["patient_num"] = df["patient_id"].str.extract(r'(\d+)').astype(int)
 df = df.sort_values(by=["timestamp", "patient_num"])
 df = df.drop(columns=["patient_num"])
 
 df.to_csv(output_path, index=False)
 print("✅ Fișierul 'vitals_sample.csv' a fost generat cu succes.")
+
+# === Antrenare model ===
+train_model(force=True)
+print("✅ Modelul AI a fost antrenat și salvat.")

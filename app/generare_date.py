@@ -3,8 +3,6 @@ import random
 from datetime import datetime, timedelta
 import os
 import sys
-
-
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "app")))
 from ml_model import train_model
 
@@ -26,9 +24,9 @@ def compute_pews(hr, spo2, temp):
     elif spo2 < 94:
         score += 1
 
-    if temp > 39.5:
+    if temp >= 39.5:
         score += 2
-    elif temp > 38:
+    elif temp >= 37.5 and temp < 39.5:
         score += 1
 
     return score
@@ -71,8 +69,7 @@ df = df.sort_values(by=["timestamp", "patient_num"])
 df = df.drop(columns=["patient_num"])
 
 df.to_csv(output_path, index=False)
-print("✅ Fișierul 'vitals_sample.csv' a fost generat cu succes.")
+print("Fișierul 'vitals_sample.csv' a fost generat cu succes.")
 
-# === Antrenare model ===
 train_model(force=True)
-print("✅ Modelul AI a fost antrenat și salvat.")
+

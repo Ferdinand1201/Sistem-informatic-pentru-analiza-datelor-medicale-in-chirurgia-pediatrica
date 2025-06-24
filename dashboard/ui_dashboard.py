@@ -23,13 +23,16 @@ data["spo2"] = pd.to_numeric(data["spo2"], errors="coerce")
 data["temperature"] = pd.to_numeric(data["temperature"], errors="coerce")
 data["timestamp"] = pd.to_datetime(data["timestamp"], errors="coerce")
 
+if "risk" in data.columns:
+    data = data.drop(columns=["risk"])
+
 if "pews" not in data.columns:
     data["pews"] = None
 
 if "risk_level" not in data.columns:
     data["risk_level"] = "N/A"
 
-data = data.sort_values(by=["timestamp", "patient_id"])
+data = data.sort_values(by=["timestamp", "patient_id"], ascending=[False, True]).reset_index(drop=True)
 
 data["risc_ai"] = data.apply(
     lambda row: predict_risk(row["heart_rate"], row["spo2"], row["temperature"]),
@@ -66,9 +69,9 @@ def style_alert(val, column):
             return "background-color: #ffe066; color:black"
 
     elif column == "temperature":
-        if val > 38:
+        if val > 38 and val < 39.5:
             return "background-color: #ffe066; color:black"
-        elif val > 39.5:
+        if val >= 39.5:
             return "background-color: #ff4d4d; color: white"
 
 
@@ -85,7 +88,9 @@ def style_alert(val, column):
             return "background-color: #ffe066; color: black"
         elif val == "Scăzut":
             return ""
+
     elif column == "risc_ai":
+        if val ==1:
             return "background-color: #ffcccc; color: black"
 
     return ""
@@ -105,17 +110,20 @@ alerts = data[
 ]
 
 if not alerts.empty:
-    alerts = alerts.sort_values(by=["timestamp", "patient_id"])
+    alerts = alerts.sort_values(by=["timestamp", "patient_id"], ascending=[False, True]).reset_index(drop=True)
+
     st.error(f" {len(alerts)} ALERTE VITALE DETECTATE!")
     for idx, row in alerts.iterrows():
         st.write(f"{row['patient_id']} – HR: {row['heart_rate']}, SpO₂: {row['spo2']}, Temp: {row['temperature']}")
-        log_event(row["patient_id"], "ALERT_TRIGGERED")  # 👈 logare în "blockchain"
+        log_event(row["patient_id"], "ALERT_TRIGGERED")
     play_alert_sound()
 
-    st.subheader("Tabel alerte detectate")
+    st.subheader("Tabel pacienți cu risc ridicat")
 
     def highlight_alert(val, column):
         return style_alert(val, column) if column != "risk_level" else ""
+
+
 
     alert_style = alerts.style \
         .map(lambda val: highlight_alert(val, "heart_rate"), subset=["heart_rate"]) \
@@ -130,9 +138,10 @@ else:
 
 
 risc_ai_alerts = data[data["risc_ai"] == 1]
+risc_ai_alerts = risc_ai_alerts.sort_values(by=["timestamp", "patient_id"], ascending=[False, True]).reset_index(drop=True)
 
 if not risc_ai_alerts.empty:
-    st.warning(f"{len(risc_ai_alerts)} pacienți detectați cu risc de AI")
+    st.warning(f"{len(risc_ai_alerts)} alerte detectate de AI")
     st.subheader("Tabel pacienți detectați cu risc AI")
     st.dataframe(risc_ai_alerts[["patient_id", "heart_rate", "spo2", "temperature", "timestamp", "risc_ai"]])
 else:

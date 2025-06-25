@@ -1,8 +1,8 @@
-# 🏥 Sistem Chirurgie Pediatrică – Proiect Colectiv
+#  Sistem Chirurgie Pediatrică – Proiect Colectiv
 
 Acest proiect reprezintă o aplicație informatică destinată colectării, gestionării și analizei datelor medicale primare în contextul urgențelor chirurgicale pediatrice.
 
-# 🎯 Scopul proiectului
+# Scopul proiectului
 
 - Colectarea datelor clinice (HR, SpO₂, temperatură)
 - Alertare automată la depășirea pragurilor critice
@@ -10,7 +10,7 @@ Acest proiect reprezintă o aplicație informatică destinată colectării, gest
 - Exportul datelor pentru analiză statistică în R și JASP
 - Logarea acțiunilor în blockchain
 
-# ⚙️ Tehnologii utilizate
+# Tehnologii utilizate
 
 - **Backend**: FastAPI + Pandas
 - **Frontend**: Streamlit + Plotly
@@ -19,7 +19,7 @@ Acest proiect reprezintă o aplicație informatică destinată colectării, gest
 - **Stocare**: DB SQLite, CSV local
 - **Blockchain**: Web3.py
 
-#Persistența datelor 
+# Persistența datelor 
 
 Aplicația utilizează un sistem mixt de stocare a datelor medicale: 
 ## Bază de date locală SQLite (data/vitals.db):
@@ -83,15 +83,18 @@ medic / 1234 → acces complet
 
 asistent / 4321 → vizualizare
 
+cercetator /0000 -> export date
+
 Token JWT se generează la /token și se folosește pentru autorizare
 ```
 
-# Export + analiză în R
+# Export + analiză în R/JASP
 
 ```plaintext
 Apelează:
 
-GET /export/json
+GET /export/json  pentru R
+GET /export/csv   pentru JASP
 
 ```
 În analiza.R:
@@ -99,6 +102,21 @@ GET /export/json
 
 library(jsonlite)
 df <- stream_in(file("data/export_r.json"))
+```
+# Testare
+
+Testele sunt în tests/ și acoperă:
+
+predict_risk() – model AI
+
+create_access_token() – autentificare
+
+compute_pews() – logică medicală
+
+Rulează testele:
+
+```plaintext
+pytest tests/
 ```
 
 ## 📁 Structura proiectului

@@ -2,7 +2,7 @@
 
 Acest proiect reprezintă o aplicație informatică destinată colectării, gestionării și analizei datelor medicale primare în contextul urgențelor chirurgicale pediatrice.
 
-## 🎯 Scopul proiectului
+# 🎯 Scopul proiectului
 
 - Colectarea datelor clinice (HR, SpO₂, temperatură)
 - Alertare automată la depășirea pragurilor critice
@@ -10,7 +10,7 @@ Acest proiect reprezintă o aplicație informatică destinată colectării, gest
 - Exportul datelor pentru analiză statistică în R și JASP
 - Logarea acțiunilor în blockchain
 
-## ⚙️ Tehnologii utilizate
+# ⚙️ Tehnologii utilizate
 
 - **Backend**: FastAPI + Pandas
 - **Frontend**: Streamlit + Plotly
@@ -19,10 +19,10 @@ Acest proiect reprezintă o aplicație informatică destinată colectării, gest
 - **Stocare**: DB SQLite, CSV local
 - **Blockchain**: Web3.py
 
-## Persistența datelor 
+#Persistența datelor 
 
 Aplicația utilizează un sistem mixt de stocare a datelor medicale: 
-# Bază de date locală SQLite (data/vitals.db):
+## Bază de date locală SQLite (data/vitals.db):
 
 -Conține toate înregistrările trimise prin API sau generate automat
 
@@ -30,7 +30,7 @@ Aplicația utilizează un sistem mixt de stocare a datelor medicale:
 
 -Se accesează intern cu SQLAlchemy
 
-# Fișier CSV sincronizat (data/vitals_sample.csv):
+## Fișier CSV sincronizat (data/vitals_sample.csv):
 
 -Se actualizează automat la fiecare inserare
 
@@ -38,7 +38,7 @@ Aplicația utilizează un sistem mixt de stocare a datelor medicale:
 
 -Poate fi exportat și analizat în JASP sau Excel
 
-## 🚀 Cum rulezi proiectul
+# 🚀 Cum rulezi proiectul
 
 ## 1. Clonează repo:
 ```plaintext
@@ -105,18 +105,44 @@ df <- stream_in(file("data/export_r.json"))
 
 ```plaintext
 
+## 📁 Structura proiectului
+
+```plaintext
 proiect_chirurgie_pediatrica/
 ├── app/
-│   ├── main.py
-│   └── auth.py
+│   ├── main.py              # API FastAPI
+│   ├── auth.py              # JWT auth
+│   └── ml_model.py          # Model AI
+|   ---database.py           # Baza de date SQLite
+│   ├── generare_date.py     # Generare date + antrenare AI
+│   └── risk_model.pkl       # Model salvat
+│
 ├── dashboard/
-│   └── ui_dashboard.py
+│   ├── ui_dashboard.py      # Streamlit UI
+│   └── alert-109578.mp3     # Sunet alertă critică
+│
+├── utils/
+│   └── web3_utils.py        # Simulare log blockchain
+│
 ├── data/
 │   ├── vitals_sample.csv
-│   └── export_r.json
+│   ├── export_r.json
+│   ├── export_jasp.csv
+│   └── fake_blockchain_log.txt  # Fișier fake blockchain (loguri locale)
+|   ----vitals.db            
+│
+├── tests/
+│   ├── test_ml_model.py
+│   ├── test_auth.py
+│   ├── test_utils.py
+│   └── conftest.py
+│
 ├── r-analysis/
-│   └── analiza.R
-├── README.md
+│   ├── analiza.R
+│   └── Rplots.pdf           # Grafic PEWS generat din R
+│
+├── requirements.txt
+└── README.md
 ```
 
 

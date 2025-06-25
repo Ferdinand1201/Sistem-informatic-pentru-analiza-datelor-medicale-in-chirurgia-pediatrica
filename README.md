@@ -122,10 +122,6 @@ pytest tests/
 ## 📁 Structura proiectului
 
 ```plaintext
-
-## 📁 Structura proiectului
-
-```plaintext
 proiect_chirurgie_pediatrica/
 ├── app/
 │   ├── main.py              # API FastAPI

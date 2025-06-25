@@ -4,11 +4,11 @@ Acest proiect reprezintă o aplicație informatică destinată colectării, gest
 
 ## 🎯 Scopul proiectului
 
-- Colectarea automată/manuală a datelor clinice (HR, SpO₂, temperatură)
+- Colectarea datelor clinice (HR, SpO₂, temperatură)
 - Alertare automată la depășirea pragurilor critice
 - Acces diferențiat pe roluri (medic, asistent, cercetător)
-- Exportul datelor pentru analiză statistică în R
-- (Opțional) Logarea acțiunilor în blockchain
+- Exportul datelor pentru analiză statistică în R și JASP
+- Logarea acțiunilor în blockchain
 
 ## ⚙️ Tehnologii utilizate
 
@@ -16,8 +16,27 @@ Acest proiect reprezintă o aplicație informatică destinată colectării, gest
 - **Frontend**: Streamlit + Plotly
 - **Autentificare**: JWT + bcrypt
 - **Analiză externă**: R + jsonlite
-- **Stocare**: CSV local
-- *(Opțional: Solidity, Ganache, Web3.py)*
+- **Stocare**: DB SQLite, CSV local
+- **Blockchain**: Web3.py
+
+## Persistența datelor 
+
+Aplicația utilizează un sistem mixt de stocare a datelor medicale: 
+# Bază de date locală SQLite (data/vitals.db):
+
+-Conține toate înregistrările trimise prin API sau generate automat
+
+-Este utilizată pentru interogări rapide și stocare permanentă
+
+-Se accesează intern cu SQLAlchemy
+
+# Fișier CSV sincronizat (data/vitals_sample.csv):
+
+-Se actualizează automat la fiecare inserare
+
+-Este folosit de dashboard-ul Streamlit pentru afișare
+
+-Poate fi exportat și analizat în JASP sau Excel
 
 ## 🚀 Cum rulezi proiectul
 

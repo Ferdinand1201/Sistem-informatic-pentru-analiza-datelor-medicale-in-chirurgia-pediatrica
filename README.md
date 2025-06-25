@@ -38,7 +38,7 @@ Aplicația utilizează un sistem mixt de stocare a datelor medicale:
 
 -Poate fi exportat și analizat în JASP sau Excel
 
-# 🚀 Cum rulezi proiectul
+#  Cum rulezi proiectul
 
 ## 1. Clonează repo:
 ```plaintext
@@ -158,5 +158,8 @@ proiect_chirurgie_pediatrica/
 ├── requirements.txt
 └── README.md
 ```
+# Video demonstrativ de utilizare a aplicației 
+
+[Video demonstrativ](https://youtu.be/80D-SaCqFEs)
 
 
